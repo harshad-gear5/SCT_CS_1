@@ -9,18 +9,18 @@ This project provides a simple implementation of the Caesar Cipher algorithm for
 
  Features
 
-- Encryption**: The script takes a message and a shift value as input and outputs the encrypted message. Each letter is shifted by the specified number of places in the alphabet. Uppercase and lowercase letters are handled separately, preserving the case of each letter.
+- Encryption: The script takes a message and a shift value as input and outputs the encrypted message. Each letter is shifted by the specified number of places in the alphabet. Uppercase and lowercase letters are handled separately, preserving the case of each letter.
 - **Decryption**: The script can also decrypt a message that was encrypted using the Caesar Cipher. By shifting the letters back by the same number of places, the original message is recovered.
 
  How It Works
 
-1. Input Message**: The user inputs a message to be encrypted or decrypted.
+1. Input Message: The user inputs a message to be encrypted or decrypted.
 2. Shift Value**: The user specifies the shift value, which determines how many places each letter in the message will be shifted.
-3. Encryption Process**: 
+3. Encryption Process: 
    - For each letter in the message, the script determines its position in the alphabet.
    - The script then shifts the letter by the specified number of places, wrapping around the alphabet if necessary.
    - Spaces and non-alphabetic characters are left unchanged.
-4. Decryption Process**: The decryption function uses the same process as encryption but with the shift value negated, effectively reversing the shift.
+4. Decryption Process: The decryption function uses the same process as encryption but with the shift value negated, effectively reversing the shift.
 
  Applications
 
