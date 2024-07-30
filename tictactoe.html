@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <style>
+        @font-face {
+            font-family: 'PressStart2P';
+            src: url('https://fonts.cdnfonts.com/s/13750/PressStart2P-Regular.woff') format('woff');
+        }
+
+        body {
+            font-family: 'PressStart2P', Arial, sans-serif;
+            background-color: #87CEEB; /* Sky Blue */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: url('https://www.mariowiki.com/images/thumb/2/27/SMB1_Course_Clear.png/1200px-SMB1_Course_Clear.png');
+            background-size: cover;
+        }
+
+        .container {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-direction: column;
+            background-color: rgba(255, 255, 255, 0.9); /* White with opacity */
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            color: #FF0000; /* Mario Red */
+            margin-bottom: 20px;
+            text-shadow: 2px 2px #000;
+        }
+
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 4px;
+            margin: 20px 0;
+        }
+
+        .cell {
+            background-color: #FFD700; /* Coin Yellow */
+            border: 2px solid #8B4513; /* Brick Brown */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            cursor: pointer;
+            font-family: 'PressStart2P', Arial, sans-serif;
+        }
+
+        .cell:hover {
+            background-color: #FFA500; /* Orange */
+        }
+
+        .x {
+            color: #FF0000; /* Mario Red */
+            text-shadow: 2px 2px #000;
+        }
+
+        .o {
+            color: #0000FF; /* Luigi Blue */
+            text-shadow: 2px 2px #000;
+        }
+
+        .status {
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            color: #000;
+        }
+
+        .btn-container {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background-color: #32CD32; /* Green */
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            width: 250px; /* Adjust button width as needed */
+            font-family: 'PressStart2P', Arial, sans-serif;
+            text-shadow: 2px 2px #000;
+        }
+
+        .btn:hover {
+            background-color: #228B22; /* Darker Green */
+        }
+
+        .mario {
+            width: 64px;
+            height: 64px;
+            background-image: url('https://www.spriters-resource.com/resources/sheet_icons/9/9454.png');
+            background-size: cover;
+            display: none;
+            animation: dance 1s steps(4) infinite;
+        }
+
+        @keyframes dance {
+            from { background-position: 0; }
+            to { background-position: -256px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tic-Tac-Toe</h1>
+        <div class="btn-container">
+            <button id="computer-vs-human" class="btn">Computer vs Human</button>
+            <button id="human-vs-human" class="btn">Human vs Human</button>
+            <button id="restart-btn" class="btn">Restart Game</button>
+        </div>
+        <div id="game-board" class="board">
+            <div class="cell" data-cell="0"></div>
+            <div class="cell" data-cell="1"></div>
+            <div class="cell" data-cell="2"></div>
+            <div class="cell" data-cell="3"></div>
+            <div class="cell" data-cell="4"></div>
+            <div class="cell" data-cell="5"></div>
+            <div class="cell" data-cell="6"></div>
+            <div class="cell" data-cell="7"></div>
+            <div class="cell" data-cell="8"></div>
+        </div>
+        <div id="status" class="status">X's turn</div>
+        <div id="mario" class="mario"></div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const board = document.getElementById('game-board');
+            const cells = document.querySelectorAll('.cell');
+            const status = document.getElementById('status');
+            const mario = document.getElementById('mario');
+            const computerVsHumanBtn = document.getElementById('computer-vs-human');
+            const humanVsHumanBtn = document.getElementById('human-vs-human');
+            const restartBtn = document.getElementById('restart-btn');
+
+            let currentPlayer = 'X';
+            let gameActive = true;
+            let gameState = ['', '', '', '', '', '', '', '', ''];
+            let againstComputer = true; // Default to computer vs human
+
+            // Event listeners
+            cells.forEach(cell => {
+                cell.addEventListener('click', () => {
+                    const cellIndex = parseInt(cell.getAttribute('data-cell'));
+                    if (gameState[cellIndex] !== '' || !gameActive) return;
+
+                    handleCellClick(cellIndex);
+                    if (againstComputer && gameActive) {
+                        setTimeout(computerMove, 500); // Add delay for computer's move
+                    }
+                });
+            });
+
+            computerVsHumanBtn.addEventListener('click', function() {
+                againstComputer = true;
+                restartGame();
+            });
+
+            humanVsHumanBtn.addEventListener('click', function() {
+                againstComputer = false;
+                restartGame();
+            });
+
+            restartBtn.addEventListener('click', restartGame);
+
+            // Function to handle cell clicks
+            function handleCellClick(cellIndex) {
+                gameState[cellIndex] = currentPlayer;
+                cells[cellIndex].textContent = currentPlayer;
+                cells[cellIndex].classList.add(currentPlayer === 'X' ? 'x' : 'o');
+
+                if (checkWin()) {
+                    status.textContent = `${currentPlayer} wins!`;
+                    gameActive = false;
+                    mario.style.display = 'block'; // Show Mario animation
+                    return;
+                }
+
+                if (checkDraw()) {
+                    status.textContent = 'Draw!';
+                    gameActive = false;
+                    return;
+                }
+
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                status.textContent = `${currentPlayer}'s turn`;
+            }
+
+            // Function to check for a win
+            function checkWin() {
+                const winConditions = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8], // rows
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8], // columns
+                    [0, 4, 8], [2, 4, 6] // diagonals
+                ];
+
+                return winConditions.some(condition => {
+                    const [a, b, c] = condition;
+                    return gameState[a] !== '' && gameState[a] === gameState[b] && gameState[a] === gameState[c];
+                });
+            }
+
+            // Function to check for a draw
+            function checkDraw() {
+                return gameState.every(cell => cell !== '');
+            }
+
+            // Function to restart the game
+            function restartGame() {
+                currentPlayer = 'X';
+                gameActive = true;
+                gameState = ['', '', '', '', '', '', '', '', ''];
+                cells.forEach(cell => {
+                    cell.textContent = '';
+                    cell.classList.remove('x', 'o');
+                });
+                status.textContent = `${currentPlayer}'s turn`;
+                mario.style.display = 'none'; // Hide Mario animation
+            }
+
+            // Minimax algorithm
+            function minimax(newGameState, player) {
+                const availSpots = newGameState.reduce((acc, val, index) => {
+                    if (val === '') acc.push(index);
+                    return acc;
+                }, []);
+
+                if (checkWinWithState(newGameState, 'X')) return { score: -10 };
+                if (checkWinWithState(newGameState, 'O')) return { score: 10 };
+                if (availSpots.length === 0) return { score: 0 };
+
+                const moves = [];
+
+                availSpots.forEach(spot => {
+                    const move = {};
+                    move.index = spot;
+                    newGameState[spot] = player;
+
+                    if (player === 'O') {
+                        const result = minimax(newGameState, 'X');
+                        move.score = result.score;
+                    } else {
+                        const result = minimax(newGameState, 'O');
+                        move.score = result.score;
+                    }
+
+                    newGameState[spot] = '';
+                    moves.push(move);
+                });
+
+                let bestMove;
+                if (player === 'O') {
+                    let bestScore = -10000;
+                    moves.forEach(move => {
+                        if (move.score > bestScore) {
+                            bestScore = move.score;
+                            bestMove = move;
+                        }
+                    });
+                } else {
+                    let bestScore = 10000;
+                    moves.forEach(move => {
+                        if (move.score < bestScore) {
+                            bestScore = move.score;
+                            bestMove = move;
+                        }
+                    });
+                }
+
+                return bestMove;
+            }
+
+            // Function to check for a win with a specific game state
+            function checkWinWithState(state, player) {
+                const winConditions = [
+                    [0, 1, 2], [3, 4, 5], [6, 7, 8],
+                    [0, 3, 6], [1, 4, 7], [2, 5, 8],
+                    [0, 4, 8], [2, 4, 6]
+                ];
+
+                return winConditions.some(condition => {
+                    const [a, b, c] = condition;
+                    return state[a] === player && state[b] === player && state[c] === player;
+                });
+            }
+
+            // Function for computer move (using minimax)
+            function computerMove() {
+                if (!gameActive) return;
+
+                const bestMove = minimax(gameState, 'O');
+                handleCellClick(bestMove.index);
+            }
+        });
+    </script>
+</body>
+</html>
